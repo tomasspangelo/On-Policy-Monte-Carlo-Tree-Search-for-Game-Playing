@@ -63,7 +63,7 @@ class BasicClientActor(BasicClientActorAbs):
             for j in range(board_size):
                 if state[(i, j)] == 0:
                     new_state = state.copy()
-                    new_state[(i, j)] = current_player
+                    new_state[(i, j)] = other_player
                     if self.state_manager.has_won(player=other_player, state=new_state):
                         return i, j
 
