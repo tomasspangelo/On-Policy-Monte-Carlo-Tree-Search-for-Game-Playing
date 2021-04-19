@@ -6,6 +6,7 @@ from actor import ActorNetwork
 import tensorflow as tf
 import os
 
+
 class BasicClientActor(BasicClientActorAbs):
 
     def __init__(self, IP_address=None, verbose=True):
@@ -33,7 +34,7 @@ class BasicClientActor(BasicClientActorAbs):
 
         # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
         # next_move = tuple(self.pick_random_free_cell(
-            # state, size=int(math.sqrt(len(state)-1))))
+        # state, size=int(math.sqrt(len(state)-1))))
         #############################
         #
         #
@@ -44,11 +45,28 @@ class BasicClientActor(BasicClientActorAbs):
 
         current_player = state[0]
         only_state_array = np.array(state[1:])
-        board_size = int(len(only_state_array)**0.5)
+        board_size = int(len(only_state_array) ** 0.5)
         state = only_state_array.reshape((board_size, board_size))
 
         self.state_manager.state = state
         self.state_manager.current_player = current_player
+
+        for i in range(board_size):
+            for j in range(board_size):
+                if state[(i, j)] == 0:
+                    new_state = state.copy()
+                    new_state[(i, j)] = current_player
+                    if self.state_manager.has_won(player=current_player, state=new_state):
+                        return i, j
+        other_player = 2 if current_player == 1 else 1
+        for i in range(board_size):
+            for j in range(board_size):
+                if state[(i, j)] == 0:
+                    new_state = state.copy()
+                    new_state[(i, j)] = current_player
+                    if self.state_manager.has_won(player=other_player, state=new_state):
+                        return i, j
+
 
         next_move = self.actor.get_action(state=state, player=current_player, random_possible=False)
         self.state_manager.perform_action(next_move)
