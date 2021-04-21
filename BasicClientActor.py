@@ -51,6 +51,8 @@ class BasicClientActor(BasicClientActorAbs):
         self.state_manager.state = state
         self.state_manager.current_player = current_player
 
+        other_player = 2 if current_player == 1 else 1
+        # Lookahead for self win, 1 step
         for i in range(board_size):
             for j in range(board_size):
                 if state[(i, j)] == 0:
@@ -58,7 +60,7 @@ class BasicClientActor(BasicClientActorAbs):
                     new_state[(i, j)] = current_player
                     if self.state_manager.has_won(player=current_player, state=new_state):
                         return i, j
-        other_player = 2 if current_player == 1 else 1
+        # Lookahead for adversary, 1 step
         for i in range(board_size):
             for j in range(board_size):
                 if state[(i, j)] == 0:
@@ -66,7 +68,32 @@ class BasicClientActor(BasicClientActorAbs):
                     new_state[(i, j)] = other_player
                     if self.state_manager.has_won(player=other_player, state=new_state):
                         return i, j
-
+        # Lookahead for self win, 2 step
+        for i in range(board_size):
+            for j in range(board_size):
+                if state[i, j] == 0:
+                    new_state = state.copy()
+                    new_state[i, j] = current_player
+                    for x in range(board_size):
+                        for y in range(board_size):
+                            if state[x, y] == 0:
+                                new_new_state = new_state.copy()
+                                new_new_state[x, y] = current_player
+                                if self.state_manager.has_won(player=current_player, state=new_new_state):
+                                    return i, j
+        # Lookahead for adversary, 2 step
+        for i in range(board_size):
+            for j in range(board_size):
+                if state[i, j] == 0:
+                    new_state = state.copy()
+                    new_state[i, j] = other_player
+                    for x in range(board_size):
+                        for y in range(board_size):
+                            if state[x, y] == 0:
+                                new_new_state = new_state.copy()
+                                new_new_state[x, y] = other_player
+                                if self.state_manager.has_won(player=other_player, state=new_new_state):
+                                    return i, j
 
         next_move = self.actor.get_action(state=state, player=current_player, random_possible=False)
         self.state_manager.perform_action(next_move)
